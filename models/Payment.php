@@ -13,7 +13,6 @@ use yii\db\Query;
 use yii\db\ActiveRecord;
 use yii\db\BaseActiveRecord;
 use yii\behaviors\TimestampBehavior;
-use yuncms\payment\ModuleTrait;
 use yuncms\user\models\User;
 
 /**
@@ -40,8 +39,6 @@ use yuncms\user\models\User;
  */
 class Payment extends ActiveRecord
 {
-    use ModuleTrait;
-
     //交易类型
     const TYPE_NATIVE = 0b1;//原生扫码支付
     const TYPE_JS_API = 0b10;//应用内JS API,如微信
@@ -90,7 +87,7 @@ class Payment extends ActiveRecord
                         ActiveRecord::EVENT_BEFORE_INSERT => 'id',
                 ],
                 'value' => function ($event) {
-                    return $this->generateId();
+                    return $event->sender->generateId();
                 }
             ],
             [
