@@ -1,0 +1,53 @@
+{
+  "name": "yuncms/yuncms-payment",
+  "description": "The payment module for yuncms.",
+  "keywords": [
+    "yii",
+    "yii2-payment",
+    "payment"
+  ],
+  "type": "yii2-extension",
+  "license": "MIT",
+  "require": {
+    "yiisoft/yii2": "~2.0.6",
+    "xutl/payment": "~1.0",
+    "endroid/qrcode": "~1.0",
+    "whichbrowser/parser": "~2.0",
+    "yuncms/yuncms-user": "~2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "yuncms\\payment\\": ""
+    }
+  },
+  "extra": {
+    "yuncms": {
+      "name": "payment",
+      "i18n": {
+        "class": "yii\\i18n\\PhpMessageSource",
+        "sourceLanguage": "en-US",
+        "basePath": "@yuncms/payment/messages"
+      },
+      "migrationNamespace": "yuncms\\payment\\migrations",
+      "backend": {
+        "class": "yuncms\\payment\\backend\\Module"
+      },
+      "frontend": {
+        "class": "yuncms\\payment\\frontend\\Module"
+      }
+    },
+    "branch-alias": {
+      "dev-master": "2.0.0-dev"
+    }
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
+    },
+    {
+      "type": "composer",
+      "url": "https://packagist.phpcomposer.com"
+    }
+  ]
+}
