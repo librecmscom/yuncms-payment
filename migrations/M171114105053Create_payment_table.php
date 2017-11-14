@@ -16,7 +16,7 @@ class M171114105053Create_payment_table extends Migration
         }
 
         $this->createTable('{{%payment}}', [
-            'id' => $this->string()->notNull()->unsigned()->comment('ID'),
+            'id' => $this->string()->notNull()->comment('ID'),
             'model_id' => $this->integer()->comment('Model ID'),
             'model_class' => $this->string()->comment('Model Class'),
             'pay_id' => $this->string()->comment('Pay ID'),
