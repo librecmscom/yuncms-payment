@@ -2,6 +2,13 @@
 
 The payment module for yuncms.
 
+
+[![Latest Stable Version](https://poser.pugx.org/yuncms/yuncms-payment/v/stable.png)](https://packagist.org/packages/yuncms/yuncms-payment)
+[![Total Downloads](https://poser.pugx.org/yuncms/yuncms-payment/downloads.png)](https://packagist.org/packages/yuncms/yuncms-payment)
+[![Build Status](https://img.shields.io/travis/yuncms/yuncms-payment.svg)](http://travis-ci.org/yuncms/yuncms-payment)
+[![License](https://poser.pugx.org/yuncms/yuncms-payment/license.svg)](https://packagist.org/packages/yuncms/yuncms-payment)
+
+
 ## Installation
 
 The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
