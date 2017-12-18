@@ -43,7 +43,7 @@ class Payment extends ActiveRecord
     const TYPE_NATIVE = 0b1;//原生扫码支付
     const TYPE_JS_API = 0b10;//应用内JS API,如微信
     const TYPE_APP = 0b11;//app支付
-    const TYPE_MWEB = 0b100;//H5支付
+    const TYPE_H5 = 0b100;//H5支付
     const TYPE_MICROPAY = 0b101;//刷卡支付
     const TYPE_OFFLINE = 0b110;//离线（汇款、转账等）支付
 
@@ -87,7 +87,7 @@ class Payment extends ActiveRecord
                         ActiveRecord::EVENT_BEFORE_INSERT => 'id',
                 ],
                 'value' => function ($event) {
-                    return $event->sender->generateId();
+                    return $event->sender->generateOutTradeNo();
                 }
             ],
             [
@@ -111,14 +111,14 @@ class Payment extends ActiveRecord
             ['id', 'unique', 'message' => Yii::t('payment', 'This id has already been taken')],
 
             ['model_id', 'integer'],
-            ['model', 'string', 'max' => 255],
+            ['model_class', 'string', 'max' => 255],
 
             ['trade_type', 'default', 'value' => static::TYPE_NATIVE],
             ['trade_type', 'in', 'range' => [
                 static::TYPE_NATIVE,//扫码付款
                 static::TYPE_JS_API,//嵌入式 JS SDK付款
                 static::TYPE_APP,//APP付款
-                static::TYPE_MWEB,//H5 Web 付款
+                static::TYPE_H5,//H5 Web 付款
                 static::TYPE_MICROPAY,//刷卡付款
                 static::TYPE_OFFLINE,//转账汇款
             ]],
@@ -142,7 +142,7 @@ class Payment extends ActiveRecord
         return [
             'id' => Yii::t('payment', 'ID'),
             'model_id' => Yii::t('payment', 'Model ID'),
-            'model' => Yii::t('payment', 'Model'),
+            'model_class' => Yii::t('payment', 'Model'),
             'pay_id' => Yii::t('payment', 'Pay ID'),
             'user_id' => Yii::t('payment', 'User ID'),
             'name' => Yii::t('payment', 'Payment Name'),
@@ -168,9 +168,17 @@ class Payment extends ActiveRecord
     }
 
     /**
+     * 商户订单号
+     * @return int
+     */
+    public function getOutTradeNo(){
+        return $this->id;
+    }
+
+    /**
      * 生成付款流水号
      */
-    public function generateId()
+    public function generateOutTradeNo()
     {
         $i = rand(0, 9999);
         do {
