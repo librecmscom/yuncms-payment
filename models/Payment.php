@@ -25,11 +25,11 @@ use yuncms\user\models\User;
  * @property integer $user_id 用户ID
  * @property string $gateway 支付网关
  * @property string $pay_id 支付号
- * @property string $name 付款事由
+ * @property string $subject 付款事由
  * @property integer $trade_type 交易类型
  * @property integer $trade_state 交易状态
  * @property integer $currency 币种
- * @property integer $money 签署
+ * @property integer $total_amount 订单总金额
  * @property integer $created_at 创建时间
  * @property integer $updated_at 更新时间
  * @property string $note 备注
@@ -145,7 +145,7 @@ class Payment extends ActiveRecord
             'model_class' => Yii::t('payment', 'Model'),
             'pay_id' => Yii::t('payment', 'Pay ID'),
             'user_id' => Yii::t('payment', 'User ID'),
-            'name' => Yii::t('payment', 'Payment Name'),
+            'subject' => Yii::t('payment', 'Subject'),
             'gateway' => Yii::t('payment', 'Payment Gateway'),
             'currency' => Yii::t('payment', 'Currency'),
             'money' => Yii::t('payment', 'Money'),
