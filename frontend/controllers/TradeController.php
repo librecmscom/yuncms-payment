@@ -11,6 +11,7 @@ use Yii;
 use yii\web\Controller;
 use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 use yuncms\payment\models\Payment;
 
 /**
@@ -79,6 +80,24 @@ class TradeController extends Controller
         // print_r($paymentParams);
         //exit;
         return $this->redirect(['/payment/default/index', 'id' => $payment->id]);
+    }
+
+    /**
+     * 交易查询
+     * @param string $id
+     * @return array
+     * @throws NotFoundHttpException
+     */
+    public function actionQuery($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $payment = $this->findModel($id);
+
+        if ($payment) {
+            return $payment;
+        } else {
+            return ['status' => 'pending'];
+        }
     }
 
     /**
