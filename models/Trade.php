@@ -3,14 +3,14 @@
 namespace yuncms\payment\models;
 
 use Yii;
-use yii\behaviors\AttributeBehavior;
+use yii\db\Query;
 use yii\db\ActiveRecord;
 use yii\db\BaseActiveRecord;
-use yii\db\Query;
 use yii\helpers\ArrayHelper;
-use yii\behaviors\BlameableBehavior;
+use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
 use yuncms\user\models\User;
+use xutl\payment\OrderInterface;
 
 /**
  * This is the model class for table "{{%trade}}".
@@ -42,7 +42,6 @@ use yuncms\user\models\User;
  */
 class Trade extends ActiveRecord
 {
-
     //交易类型
     const TYPE_NATIVE = 0b1;//原生扫码支付
     const TYPE_JS_API = 0b10;//应用内JS API,如微信
@@ -115,7 +114,7 @@ class Trade extends ActiveRecord
     {
         $scenarios = parent::scenarios();
         return ArrayHelper::merge($scenarios, [
-            static::SCENARIO_CREATE => [],
+            static::SCENARIO_CREATE => ['type', 'currency', 'subject', 'total_amount'],
             static::SCENARIO_UPDATE => [],
         ]);
     }
@@ -126,7 +125,7 @@ class Trade extends ActiveRecord
     public function rules()
     {
         return [
-            [['type', 'currency', 'subject'], 'required'],
+            [['type', 'currency', 'subject', 'total_amount'], 'required'],
 
             ['id', 'unique', 'message' => Yii::t('payment', 'This id has already been taken')],
 
@@ -134,15 +133,17 @@ class Trade extends ActiveRecord
             ['type', 'in', 'range' => [static::TYPE_NATIVE, static::TYPE_JS_API, static::TYPE_APP, static::TYPE_H5, static::TYPE_MICROPAY, static::TYPE_OFFLINE,]],
 
             [['total_amount', 'discountable_amount'], 'number'],
+            ['discountable_amount', 'default', 'value' => 0.00],
 
             ['state', 'default', 'value' => static::STATE_NOT_PAY],
             ['state', 'in', 'range' => [static::STATE_NOT_PAY, static::STATE_SUCCESS, static::STATE_FAILED, static::STATE_REFUND, static::STATE_CLOSED, static::STATE_REVOKED, static::STATE_ERROR,]],
 
-
             [['user_id', 'type', 'model_id', 'state'], 'integer'],
 
             [['note', 'return_url'], 'string'],
+
             [['gateway'], 'string', 'max' => 50],
+
             [['pay_id', 'subject', 'model_class'], 'string', 'max' => 255],
             [['currency'], 'string', 'max' => 20],
             [['body'], 'string', 'max' => 128],
@@ -309,5 +310,36 @@ class Trade extends ActiveRecord
             $row = (new Query())->from(static::tableName())->where(['id' => $id])->exists();
         } while ($row);
         return $id;
+    }
+
+    /**
+     * 设置支付状态
+     * @param string $paymentId
+     * @param int $status
+     * @param array $params
+     * @return bool
+     */
+    public static function setPayStatus($paymentId, $status, $params)
+    {
+        if (($payment = static::findOne(['id' => $paymentId])) == null) {
+            return false;
+        }
+        if (static::STATE_SUCCESS == $payment->trade_state) {
+            return true;
+        }
+        if ($status == true) {
+            $payment->updateAttributes([
+                'pay_id' => $params['pay_id'],
+                'trade_state' => static::STATE_SUCCESS,
+                'note' => $params['message']
+            ]);//标记支付已经完成
+            /** @var \yuncms\payment\OrderInterface $orderModel */
+            $orderModel = $payment->model;
+            if (!empty($payment->model_id) && !empty($orderModel)) {
+                $orderModel::setPayStatus($payment->model_id, $paymentId, $status, $params);
+            }
+            return true;
+        }
+        return false;
     }
 }

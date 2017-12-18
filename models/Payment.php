@@ -59,7 +59,6 @@ class Payment extends ActiveRecord
     const STATE_REFUND_SUCCESS = 0b11;//转入退款
     const STATE_REFUND_FAILED = 0b11;//转入退款
 
-
     /**
      * @inheritdoc
      */
