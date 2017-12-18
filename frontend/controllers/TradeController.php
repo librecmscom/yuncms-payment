@@ -12,7 +12,7 @@ use yii\web\Controller;
 use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
-use yuncms\payment\models\Payment;
+use yuncms\payment\models\Trade;
 
 /**
  * Class TradeController
@@ -51,7 +51,7 @@ class TradeController extends Controller
      */
     public function actionCreate()
     {
-        $model = new Payment();
+        $model = new Trade();
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['/payment/trade/pay', 'id' => $model->id]);
         }
@@ -63,13 +63,13 @@ class TradeController extends Controller
      * @param int $id
      * @return string
      * @throws NotFoundHttpException
+     * @throws \yii\base\InvalidConfigException
      */
     public function actionPay($id)
     {
         $payment = $this->findModel($id);
-
         $paymentParams = [];
-        $gateway->payment($payment, $paymentParams);
+        Yii::$app->payment->get($payment->gateway)->payment($payment, $paymentParams);
         if ($paymentParams) {
             if (Yii::$app->request->isAjax) {
                 return $this->renderPartial('pay', ['payment' => $payment, 'paymentParams' => $paymentParams]);
@@ -77,9 +77,7 @@ class TradeController extends Controller
                 return $this->render('pay', ['payment' => $payment, 'paymentParams' => $paymentParams]);
             }
         }
-        // print_r($paymentParams);
-        //exit;
-        return $this->redirect(['/payment/default/index', 'id' => $payment->id]);
+        return $this->redirect(['/payment/trade/create', 'id' => $payment->id]);
     }
 
     /**
@@ -92,23 +90,22 @@ class TradeController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $payment = $this->findModel($id);
-
-        if ($payment) {
-            return $payment;
+        if ($payment->state == Trade::STATE_SUCCESS) {
+            return ['state' => 'success'];
         } else {
-            return ['status' => 'pending'];
+            return ['state' => 'pending'];
         }
     }
 
     /**
      * 获取支付单号
      * @param int $id
-     * @return Payment
+     * @return Trade
      * @throws NotFoundHttpException
      */
     public function findModel($id)
     {
-        if (($model = Payment::findOne($id)) !== null) {
+        if (($model = Trade::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
